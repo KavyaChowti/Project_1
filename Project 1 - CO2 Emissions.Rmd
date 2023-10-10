@@ -1,0 +1,173 @@
+---
+title: "Greenhouse Gas Emissions"
+author: "Kavya Chowti"
+date: "2023-09-19"
+output: html_document
+---
+
+```{r global_options, echo=FALSE}
+knitr::opts_chunk$set(fig.height=3, fig.width=4, warning=FALSE, tidy=TRUE, tidy.opts=list(width.cutoff=60))
+```
+```{r echo=FALSE}
+emissions <- read.csv('Project1_emissions.csv')
+attach(emissions)
+```
+
+***
+
+# **Dataset Information**
+
+The data set contains information for greenhouse gas emissions based on country. Much of global warming can be attributed to the large amounts of gases emitted by countries. In this data set in particular we can look at the emissions of two specific gases N2O (Nitrous Oxide) and C2O (Carbon Dioxide) and which countries contribute the most to emissions. The datset comes from Our World in Data and has data collected about the specific country characteristics such as GDP and Population as well as the amount of emissions. The gas that contributed the most to greenhouse gas emissions is carbon dioxide and is primarily responsible for global warming.   
+
+The variable I will be looking at as the outcome variable is CO2 produced as it is has been true throughout history that there is a link between global temperatures and greenhouse gases especially with carbon dioxide. The predictor variables I will be looking at are the region from which the countries are from to see if there's a particular region with higher emissions, the countries' GDP to see if the amount of money correlates with more or less emissions, and the population to see of more people means more or less emissions.
+
+
+## **Variables**
+
+**Year** - All the variables are related to what happened in the year 2018 specifically. The year is the same for all the countries
+
+**Country** - The country in which the emissions are specifically produced from. In this data set we have the emission data for 92 countries
+
+**Region** - The region from which the country is from (Either Africa, Americas, Asia/Pacific, Europe, or Middle East)
+
+**GDP** - Gross Domestic Product in US Dollars for each country
+
+**Population** - Population of Country
+
+**N2O** - The amount of Nitrous Oxide produced from each country in 2018 (measured in kilotons)
+
+**CO2** - The amount of Carbon Dioxide produced from each country in 2018 (measured in kilotons)
+
+
+
+![](https://ourworldindata.org/exports/annual-co-emissions-by-region_v42_850x600.svg) 
+
+The image shows the CO2 by country however we will be looking at the emissions by region for a a more broad idea of where the emissions might be concentrated
+
+    Ritchie, Hannah, et al. “CO2 Emissions.” Our World in Data, 11 May 2020, ourworldindata.org/co2-emissions. Accessed 22 Sept. 2023. 
+    
+***
+
+# **Variable of Interest**
+
+```{r echo=FALSE}
+library(ggplot2)
+
+emissions_plot <- ggplot(emissions)
+
+emissions_plot + geom_histogram(aes(x=CO2_Produced), binwidth = 500, alpha=.5, position='identity', col="black", fill="lightblue") + labs(title = "Distribution of the CO2 Production in ktons", x="CO2 Production (kilotons)", y="Frequency") + theme_classic()
+
+emissions_plot + geom_boxplot(aes(x=CO2_Produced),alpha=0.5, position='identity', col="black", fill="lightblue") + labs(title = "Distribution of the CO2 Production in ktons", x="CO2 Production (kilotons)", y="Frequency", horizontal=T) + theme_classic()
+
+
+```
+```{r echo=FALSE, results='hide'}
+mean(emissions$CO2_Produced)
+median(CO2_Produced)
+sd(CO2_Produced)
+summary(CO2_Produced)
+```
+**Minimum** - 3.663
+
+**1st Quartile** - 28.116   
+
+**Median** -  69.186
+
+**3rd Quartile** - 270.342
+
+**Maximum** - 10289.989
+
+**Mean** - 372.095
+
+
+
+
+I made two plots for the univariate distribution of CO2 production, a histogram and a boxplot, in order to look at a few different things.
+
+The histogram reveals that the distribution of CO2 production is very right skewed and not a normal distribution. The mean is 372.0948 kilotons of CO2 while the median point is 69.1865 kilotons. This drastic difference supports the fact that distribution is very right skewed. The mean being so high also could suggest a few outliers in the upper end which will be revealed by the boxplot later.
+
+The boxplot does indeed show that there are multiple points on the upper end of distribution which are outliers in the distribution of CO2 production.
+
+The standard deviation is 1231.29 which means the points are very spread out which is also seen by the range of 10286.33.
+
+***
+
+# **Predictor Variables' Relationship with CO2 Production**
+
+```{r echo=FALSE}
+library(RColorBrewer)
+
+emissions_plot + geom_col(aes(x=Region,y=CO2_Produced), col="black", fill="lightblue2",position = "dodge") + scale_fill_brewer(type='seq',palette=1) +theme_classic() +labs(title = "CO2 Production by Region", y="CO2 Production")
+
+```
+```{r echo=FALSE, results='hide'}
+sum(emissions$CO2_Produced[emissions$Region=="Asia/Pacific"])
+sum(emissions$CO2_Produced[emissions$Region=="Americas"])
+sum(emissions$CO2_Produced[emissions$Region=="Africa"])
+sum(emissions$CO2_Produced[emissions$Region=="Europe"])
+sum(emissions$CO2_Produced[emissions$Region=="Middle East"])
+```
+
+
+#### **Amount of CO2 in kilotons by Region**
+
+
+**Africa** - 1167.275 kt
+
+**Americas** - 7510.125 kt
+
+**Asia/Pacific** - 16799.62 kt
+
+**Europe** - 5954.784 kt
+
+**Middle East** - 0 kt
+
+Based on the bar graph and the sums of the CO2 production based on region we can see that there are clear differences between the regions. Asia is significantly higher than the other regions with it having more than double the emissions of the next highest region which is the Americas. Following the Americas is Europe followed by Africa. The Middle East has the lowest amount of CO2 production with it producing zero kilotons of CO2 in 2018.
+
+```{r echo=FALSE}
+emissions_plot + geom_point(aes(x=GDP,y=CO2_Produced), col="lightblue") + labs(title='CO2 Produced vs GDP', x='GDP (US Dollars)',y='CO2 Produced') + theme_classic()
+
+```
+```{r echo=FALSE, results='hide'}
+cor(GDP,CO2_Produced)
+```
+
+The graph appears to show a positive strong linear correlation between a countries' GDP and the amount of CO2 Produced. As its GDP gets higher so do the CO2 emissions. This is also proven through the correlation coefficient calculated which was 0.9363575 which shows a very strong correlation.
+
+
+```{r echo=FALSE}
+emissions_plot + geom_point(aes(x=Population,y=CO2_Produced), col="lightblue") + labs(title='CO2 Produced vs Population', x='Population',y='CO2 Produced') + theme_classic()
+
+```
+```{r echo=FALSE, results='hide'}
+cor(Population,CO2_Produced)
+```
+
+The graph appears to show a positive strong linear correlation between a countries' population and the amount of CO2 Produced although the correaltion does not appear to be as strong as with GDP. As a countries' population gets higher so do the CO2 emissions. This is also proven through the correlation coefficient calculated which was 0.813546 which shows a relatively strong correlation.
+
+### **Graph with All 3 Predictors**
+
+```{r echo=FALSE}
+emissions_plot + geom_point(aes(x=GDP, y=CO2_Produced, color=Region, size=Population)) + labs(title='CO2 by GDP, Region, and Population',x='GDP (US Dollars)', y='CO2 Production')  
+```
+
+Just as another visualization, I  created a graph that compares all three variables in one graph to CO2 production. We can see the same results we got from each of our individual graphs however it is all compiled into one graph making it easier to look at.
+
+***
+
+# **Conclusion**
+
+In conclusion, when we first looked at the distribution of CO2 production, we could see that there were some unusual points and was heavily skewed indicating there was a correlation between some variables and the CO2 causing there to be discrepancies.
+
+As a result, I explored three potential predictor variables, Region, GDP, and Population. When exploring them, I found that all three variables had some sort of correlation with CO2 production. There were differences between the different regions and and both GDP and Population had strong positive linear correlations with CO2 production meaning as they got higher so did CO2 production.
+
+In the future, there are other aspects that could be explored in relation to CO2 production. For example, we could also look at different sources of CO2 production within each country such as coal, oil, and natural gas. Another aspect that could be cosidered is a country's net emissions. This dataset only shows the emissions in total however it might be more accurate to look at net emissions since many countries have a goal to or actually net zero in emissions. Both of these could be explored to reveal more about the origins of greenhouse gas emissions and its effect.
+
+#### References
+
+1) 
+
+    Ritchie, Hannah, et al. “CO2 Emissions.” Our World in Data, 11 May 2020, ourworldindata.org/co2-emissions. Accessed 22 Sept. 2023. 
+    
+2) 
+[Global Emissions Dataset](https://corgis-edu.github.io/corgis/csv/global_emissions/)
